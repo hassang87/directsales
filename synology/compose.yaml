@@ -2,7 +2,7 @@
 # Folder layout on the NAS:
 #   /docker/directsales/compose.yaml   (this file)
 #   /docker/directsales/portal/        (the portal folder from the GitHub repo)
-#   /docker/directsales/data/          (created automatically: database + selfies; back this up)
+#   /docker/directsales/data/          (create this empty folder yourself: database + selfies; back this up)
 services:
   portal:
     image: node:22-alpine
