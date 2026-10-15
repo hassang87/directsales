@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Direct Sales Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: one phone-sized app frame; agent and manager share it, sheets slide over it. Deliberate single light look. */
+:root{
+  color-scheme:light;
+  --red:#D7192A;--red-d:#B10F1F;--red-50:#FDECEE;
+  --ink:#15171A;--ink2:#3A3F45;--muted:#6E747B;--line:#E7E8EB;
+  --bg:#F3F4F6;--card:#FFFFFF;--frame:#E6E7EB;
+  --green:#12924A;--green-50:#E6F5EC;--amber:#B86204;--amber-50:#FFF3E2;--blue:#1A56C4;--blue-50:#E8F0FE;
+  --sea:#D8E7F1;--land:#F1F2EC;--road:#FFFFFF;
+  --r:20px;--shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--frame);color:var(--ink);-webkit-font-smoothing:antialiased;display:flex;justify-content:center}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(215,25,42,.35);outline-offset:2px}
+input,select,textarea{font:inherit;color:inherit}
+.app{position:relative;width:100%;max-width:430px;height:100%;background:var(--bg);display:flex;flex-direction:column;overflow:hidden}
+@media (min-width:520px){
+  body{align-items:center;padding:24px 0}
+  .app{height:min(880px,100%);border-radius:40px;border:9px solid #0E0F11;box-shadow:0 30px 80px rgba(0,0,0,.22)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* top bar */
+.top{display:flex;align-items:center;gap:12px;padding:18px 18px 10px;background:var(--bg)}
+.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#E8394A,#A80D1C);color:#fff;font-weight:700;display:grid;place-items:center;font-size:15px;flex:none}
+.avatar.mgr{background:linear-gradient(135deg,#3A3F45,#15171A)}
+.top .who{flex:1;min-width:0}
+.top .hello{font-size:13px;color:var(--muted)}
+.top .name{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.iconbtn{position:relative;width:42px;height:42px;border-radius:14px;background:var(--card);display:grid;place-items:center;box-shadow:var(--shadow)}
+.iconbtn .dot{position:absolute;top:9px;right:10px;width:9px;height:9px;border-radius:50%;background:var(--red);border:2px solid #fff}
+.demo{margin:0 18px 6px;font-size:11.5px;color:#7A5B00;background:#FFF7D6;border:1px solid #F3E2A0;border-radius:10px;padding:6px 10px;display:flex;gap:6px;align-items:center}
+main{flex:1;overflow-y:auto;padding:8px 18px 110px;scroll-behavior:smooth}
+main::-webkit-scrollbar{display:none}
+.app.out .top,.app.out nav.tabs{display:none}
+.app.out main{padding-bottom:30px}
+h2{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:6px 0 14px;text-wrap:balance}
+h3{font-size:15px;font-weight:700;margin:22px 0 10px;display:flex;justify-content:space-between;align-items:center}
+h3 small{font-size:13px;color:var(--red);font-weight:600}
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px}
+.muted{color:var(--muted)}.sm{font-size:12.5px}
+.row{display:flex;align-items:center;gap:10px}.between{justify-content:space-between}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;background:#EEEFF1;color:var(--ink2);white-space:nowrap}
+.pill i{width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.green{background:var(--green-50);color:var(--green)}
+.pill.amber{background:var(--amber-50);color:var(--amber)}
+.pill.red{background:var(--red-50);color:var(--red)}
+.pill.blue{background:var(--blue-50);color:var(--blue)}
+/* hero */
+.hero{padding:18px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:auto -60px -90px auto;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(215,25,42,.07),transparent 70%)}
+.hero.on::before{background:radial-gradient(circle,rgba(18,146,74,.09),transparent 70%)}
+.shift{margin:16px 0 4px}
+.label{font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.big{font-size:30px;font-weight:800;letter-spacing:-.03em;margin-top:2px}
+.place{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink2);margin-top:4px}
+.place a{color:var(--red);font-weight:600;text-decoration:none;margin-inline-start:auto;font-size:13px}
+.timer{margin:14px 0 2px;padding:12px 14px;border-radius:14px;background:var(--green-50)}
+.clock{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--green);letter-spacing:-.02em}
+.btn-punch{margin-top:16px;width:100%;height:64px;border-radius:18px;background:var(--red);color:#fff;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 10px 24px rgba(215,25,42,.32);transition:transform .12s,background .2s}
+.btn-punch:active{transform:scale(.98)}
+.btn-punch:hover{background:var(--red-d)}
+.btn-punch.out{background:var(--ink);box-shadow:0 10px 24px rgba(21,23,26,.25)}
+.hint{font-size:12.5px;color:var(--muted);text-align:center;margin-top:10px}
+/* alert */
+.alert{display:flex;gap:12px;align-items:center;padding:14px;border-radius:18px;background:var(--card);border:1.5px solid #F6C9CE;margin-bottom:14px;box-shadow:var(--shadow)}
+.alert .ico{width:40px;height:40px;border-radius:12px;background:var(--red-50);color:var(--red);display:grid;place-items:center;flex:none;animation:pulse 2s infinite}
+.alert .t{font-weight:700;font-size:14px}.alert .s{font-size:12.5px;color:var(--muted)}
+.alert button{margin-inline-start:auto;background:var(--red);color:#fff;font-weight:600;font-size:13px;padding:9px 12px;border-radius:12px;white-space:nowrap}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(215,25,42,.25)}50%{box-shadow:0 0 0 7px rgba(215,25,42,0)}}
+/* quick actions */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.qa{background:var(--card);border-radius:18px;padding:14px;text-align:start;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;transition:transform .12s}
+.qa:active{transform:scale(.97)}
+.qa .ico{width:38px;height:38px;border-radius:12px;display:grid;place-items:center}
+.qa b{font-size:14px;font-weight:600}.qa span{font-size:12px;color:var(--muted);margin-top:-6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.mini{padding:14px}.mini .v{font-weight:700;font-size:15px;margin-top:4px}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:flex;gap:12px;align-items:center;padding:14px;text-align:start;width:100%}
+.item .ico{width:40px;height:40px;border-radius:12px;background:#F1F2F4;display:grid;place-items:center;flex:none;color:var(--ink2)}
+.item .main{flex:1;min-width:0}
+.item .t{font-weight:600;font-size:14px}
+.item .s{font-size:12.5px;color:var(--muted);margin-top:2px}
+.thumb{width:48px;height:48px;border-radius:14px;object-fit:cover;flex:none;background:#EEE}
+.thumb.ph{display:grid;place-items:center;color:var(--amber);background:var(--amber-50)}
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--card);border-radius:16px;padding:12px;box-shadow:var(--shadow);text-align:start}
+.stat b{display:block;font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat span{font-size:11.5px;color:var(--muted);line-height:1.25;display:block;margin-top:2px}
+.stat.warn b{color:var(--amber)}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}
+.chips::-webkit-scrollbar{display:none}
+.chip{padding:8px 12px;border-radius:999px;background:var(--card);font-size:13px;font-weight:600;color:var(--ink2);box-shadow:var(--shadow);white-space:nowrap}
+.chip.on{background:var(--ink);color:#fff}
+.chip.lock{color:var(--muted)}
+/* bottom nav */
+nav.tabs{position:absolute;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;padding:8px 6px calc(10px + env(safe-area-inset-bottom,0px))}
+nav.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:500;color:#8B9097;padding:6px 0;border-radius:12px;position:relative}
+nav.tabs button.active{color:var(--red);font-weight:600}
+nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--red);color:#fff;font-size:10.5px;font-weight:700;display:grid;place-items:center}
+/* schedule */
+.week{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.week::-webkit-scrollbar{display:none}
+.day{flex:1;min-width:44px;padding:10px 0;border-radius:14px;background:var(--card);text-align:center;box-shadow:var(--shadow)}
+.day .d{font-size:11px;color:var(--muted)}.day .n{font-size:17px;font-weight:700;margin-top:2px}
+.day .m{width:6px;height:6px;border-radius:50%;margin:5px auto 0;background:var(--red)}
+.day.off .m{background:#C2C6CC}
+.day.today{background:var(--ink);color:#fff}.day.today .d{color:#BFC3C8}
+.sched{display:flex;gap:12px;align-items:stretch;padding:14px}
+.sched .date{width:44px;text-align:center;flex:none}
+.sched .date b{display:block;font-size:20px}.sched .date span{font-size:11px;color:var(--muted)}
+.sched .bar{width:4px;border-radius:4px;background:var(--red);flex:none}
+.sched.off .bar{background:#D0D3D8}.sched.leave .bar{background:var(--blue)}
+/* buttons */
+.btn{height:54px;border-radius:16px;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;transition:transform .12s;text-decoration:none}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--red);color:#fff;box-shadow:0 8px 20px rgba(215,25,42,.28)}
+.btn.dark{background:var(--ink);color:#fff}
+.btn.ghost{background:#E9EAED;color:var(--ink)}
+.btn.green{background:var(--green);color:#fff}
+.btn.link{height:44px;color:var(--red);font-size:14px;font-weight:600}
+.btn.sm{height:42px;font-size:14px;border-radius:13px}
+.btns{display:flex;gap:8px}
+/* sheet */
+.sheet{position:absolute;inset:0;background:#fff;z-index:20;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.sheet.open{transform:none}
+.sh-top{display:flex;align-items:center;gap:10px;padding:18px 16px 8px}
+.sh-top .ttl{flex:1;font-weight:700;font-size:16px;text-align:center}
+.sh-top .iconbtn{box-shadow:none;background:#F1F2F4;width:38px;height:38px;border-radius:12px}
+.steps{display:flex;gap:6px;padding:4px 18px 0}
+.steps i{flex:1;height:4px;border-radius:4px;background:#ECEDEF;transition:background .3s}
+.steps i.on{background:var(--red)}
+.steps-l{display:flex;justify-content:space-between;padding:6px 18px 0;font-size:11px;color:var(--muted)}
+.steps-l span.on{color:var(--ink);font-weight:600}
+.sh-body{flex:1;overflow-y:auto;padding:18px 20px}
+.sh-foot{padding:12px 20px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px}
+.sh-foot:empty{display:none}
+.sh-body h1{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px;text-wrap:balance}
+.lead{color:var(--muted);font-size:14.5px;line-height:1.5}
+.bul{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line)}
+.bul:last-child{border:0}
+.bul .ico{width:40px;height:40px;border-radius:12px;background:var(--red-50);color:var(--red);display:grid;place-items:center;flex:none}
+.bul b{display:block;font-size:14.5px}.bul span{font-size:13px;color:var(--muted);line-height:1.45}
+.note{display:flex;gap:10px;font-size:12.5px;color:var(--ink2);background:#EEF0F3;border-radius:14px;padding:12px;line-height:1.45;margin-top:14px}
+.note svg{flex:none;margin-top:1px}
+.center{text-align:center}
+/* locating */
+.radar{width:180px;height:180px;margin:28px auto 22px;position:relative;display:grid;place-items:center}
+.radar::before,.radar::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--red);opacity:0;animation:ring 2s infinite}
+.radar::after{animation-delay:1s}
+.radar .core{width:72px;height:72px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;box-shadow:0 10px 30px rgba(215,25,42,.4)}
+@keyframes ring{0%{transform:scale(.4);opacity:.7}100%{transform:scale(1);opacity:0}}
+/* mini map */
+.minimap{height:190px;border-radius:18px;position:relative;overflow:hidden;margin:16px 0 14px;
+  background:
+   linear-gradient(90deg,transparent 46%,#fff 46%,#fff 50%,transparent 50%) 0 0/120px 120px,
+   linear-gradient(0deg,transparent 46%,#fff 46%,#fff 50%,transparent 50%) 0 0/120px 120px,
+   linear-gradient(35deg,transparent 48%,#FFE7A8 48%,#FFE7A8 52%,transparent 52%),
+   #E9EEF2}
+.minimap .acc{position:absolute;left:50%;top:50%;border-radius:50%;background:rgba(26,86,196,.12);border:1.5px solid rgba(26,86,196,.4);transform:translate(-50%,-50%)}
+.minimap .me{position:absolute;left:50%;top:50%;width:18px;height:18px;border-radius:50%;background:var(--blue);border:3px solid #fff;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.minimap .tag{position:absolute;left:10px;bottom:10px;font-size:11px;background:rgba(255,255,255,.92);padding:4px 8px;border-radius:8px;color:var(--ink2)}
+.kv{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.kv>div{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;font-size:13.5px;border-bottom:1px solid var(--line)}
+.kv>div:last-child{border:0}
+.kv span{color:var(--muted)}.kv b{font-weight:600;text-align:end}
+.kv a{color:var(--red);font-weight:600;text-decoration:none}
+.gnote{font-family:Roboto,Arial,sans-serif;font-size:12px;color:#5E5E5E;font-weight:400}
+/* big map */
+.bigmap{border-radius:20px;overflow:hidden;background:var(--sea);box-shadow:var(--shadow);position:relative}
+.bigmap svg{display:block;width:100%;height:auto}
+.bigmap .mk{cursor:pointer}
+.bigmap .tag{position:absolute;left:10px;bottom:10px;font-size:11px;background:rgba(255,255,255,.92);padding:4px 8px;border-radius:8px;color:var(--ink2)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:10px 2px 0}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:50%;background:var(--green)}
+.legend i.st{background:#fff;border:2px dashed var(--amber)}
+.legend i.sq{border-radius:3px;background:var(--ink)}
+/* camera */
+.camwrap{position:relative;border-radius:24px;overflow:hidden;background:#111;aspect-ratio:3/4;max-width:100%;margin-top:6px}
+.camwrap video,.camwrap canvas,.camwrap img{width:100%;height:100%;object-fit:cover;display:block}
+.camwrap video{transform:scaleX(-1)}
+.oval{position:absolute;inset:12% 18% 18%;border:3px dashed rgba(255,255,255,.75);border-radius:50%;pointer-events:none}
+.camtag{position:absolute;top:12px;left:12px;font-size:11.5px;font-weight:600;color:#fff;background:rgba(0,0,0,.5);padding:5px 9px;border-radius:999px;display:flex;align-items:center;gap:6px}
+.camtag i{width:7px;height:7px;border-radius:50%;background:#FF4D5E;animation:blink 1.2s infinite}
+.wm{position:absolute;right:10px;bottom:10px;font-size:11px;font-weight:600;color:#fff;background:rgba(0,0,0,.55);padding:5px 9px;border-radius:8px}
+@keyframes blink{50%{opacity:.2}}
+.shutter{width:76px;height:76px;border-radius:50%;border:5px solid #fff;background:var(--red);margin:0 auto;box-shadow:0 0 0 3px var(--red),0 10px 24px rgba(215,25,42,.35);transition:transform .1s}
+.shutter:active{transform:scale(.92)}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.flash.go{animation:flash .35s}
+@keyframes flash{0%{opacity:.9}100%{opacity:0}}
+/* saving */
+.prog{display:flex;flex-direction:column;gap:14px;margin-top:26px}
+.prog div{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--muted)}
+.prog div.done{color:var(--ink)}
+.prog .st{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid #E1E3E6;flex:none}
+.prog .done .st{background:var(--green);border-color:var(--green);color:#fff}
+.prog .now .st{border-color:var(--red);border-top-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ok{width:96px;height:96px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;margin:26px auto 18px;box-shadow:0 14px 36px rgba(18,146,74,.35);animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
+.ok.amber{background:var(--amber);box-shadow:0 14px 36px rgba(184,98,4,.3)}
+@keyframes pop{0%{transform:scale(.3);opacity:0}100%{transform:none;opacity:1}}
+.err{width:84px;height:84px;border-radius:50%;background:var(--amber-50);color:var(--amber);display:grid;place-items:center;margin:26px auto 16px}
+/* forms */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;font-weight:600;color:var(--ink2)}
+.field input,.field select,.field textarea{border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;font-size:15px;background:#fff;outline:none;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--red)}
+.field .errtxt{color:var(--red);font-size:12.5px}
+.seg{display:flex;background:#E9EAED;border-radius:14px;padding:4px}
+.seg button{flex:1;padding:10px;border-radius:11px;font-size:14px;font-weight:600;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+/* sign-in */
+.login{display:flex;flex-direction:column;min-height:100%;padding-top:34px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:48px;height:48px;border-radius:15px;background:var(--red);color:#fff;font-weight:800;display:grid;place-items:center;font-size:17px;letter-spacing:-.02em;box-shadow:0 10px 24px rgba(215,25,42,.3)}
+.brand b{display:block;font-size:17px}.brand span{font-size:13px;color:var(--muted)}
+.login h1{font-size:30px;font-weight:800;letter-spacing:-.03em;margin:44px 0 8px}
+.login .lead{margin-bottom:26px}
+.btn.passkey{height:62px;font-size:17px}
+.or{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12.5px;margin:18px 0}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.otp{font-size:28px!important;letter-spacing:.5em;text-align:center;font-variant-numeric:tabular-nums}
+/* OS-style passkey sheet */
+.os{position:absolute;inset:0;z-index:30;background:rgba(10,12,15,.38);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s}
+.os.open{opacity:1;pointer-events:auto}
+.os-card{width:100%;background:#F7F7F8;border-radius:26px 26px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(40px);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.os.open .os-card{transform:none}
+.os-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.os-head .k{width:34px;height:34px;border-radius:10px;background:var(--ink);color:#fff;display:grid;place-items:center}
+.os-head b{flex:1;font-size:16px}
+.os-site{font-size:13px;color:var(--muted);margin-bottom:14px}
+.acct{display:flex;align-items:center;gap:12px;width:100%;padding:12px;background:#fff;border-radius:16px;margin-bottom:8px;text-align:start}
+.acct .avatar{width:38px;height:38px;font-size:13px}
+.acct b{display:block;font-size:14.5px}.acct span{font-size:12.5px;color:var(--muted)}
+.faceid{width:86px;height:86px;margin:14px auto;border-radius:24px;display:grid;place-items:center;color:var(--blue);background:var(--blue-50);animation:breathe 1s ease-in-out infinite}
+.faceid.done{color:#fff;background:var(--green);animation:pop .4s}
+@keyframes breathe{50%{transform:scale(1.07)}}
+/* toast */
+.toast{position:absolute;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--ink);color:#fff;font-size:14px;font-weight:500;padding:12px 16px;border-radius:14px;opacity:0;transition:.25s;z-index:40;max-width:88%;text-align:center;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.profile-head{display:flex;flex-direction:column;align-items:center;padding:22px 16px}
+.profile-head .avatar{width:72px;height:72px;font-size:24px}
+.fade{animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.logrow{display:flex;gap:10px;font-size:12.5px;padding:10px 0;border-bottom:1px solid var(--line)}
+.logrow:last-child{border:0}
+.logrow time{color:var(--muted);font-variant-numeric:tabular-nums;flex:none;width:42px}
+</style>
+
+<div class="app out" id="app">
+  <header class="top">
+    <div class="avatar" id="hdrAv">NH</div>
+    <div class="who"><div class="hello" id="hello">Hello</div><div class="name" id="hdrName">Noor Hasan</div></div>
+    <button class="iconbtn" data-act="bell" aria-label="Notifications"><span id="bellsvg"></span><span class="dot" id="belldot"></span></button>
+  </header>
+  <div class="demo"><span>●</span> Demo prototype · fictional data · nothing is sent anywhere</div>
+  <main id="view"></main>
+  <nav class="tabs" id="tabs"></nav>
+  <section class="sheet" id="sheet" aria-modal="true" role="dialog"></section>
+  <div class="os" id="os"><div class="os-card" id="osCard"></div></div>
+  <div class="toast" id="toast" role="status"></div>
+</div>
+
+<script>
+/* ---------- icons ---------- */
+const I={
+home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+cal:'<rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
+clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+doc:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-5.5 6.5-5.5s6.5 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.6c2 .6 3.5 2.4 3.5 5.4"/>',
+pin:'<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/>',
+camera:'<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/>',
+bell:'<path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+mega:'<path d="M3 10v4h4l8 5V5L7 10z"/><path d="M18.5 9a4 4 0 0 1 0 6"/>',
+check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+x:'<path d="M6 6l12 12M18 6 6 18"/>',
+chev:'<path d="M9 6l6 6-6 6"/>',
+login:'<path d="M10 17l5-5-5-5M15 12H3"/><path d="M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/>',
+logout:'<path d="M14 7l5 5-5 5M19 12H8"/><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5"/>',
+send:'<path d="M3 11l18-8-8 18-2-8z"/>',
+alert:'<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>',
+shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
+refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+key:'<circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3M17 6l3 3M14 9l2 2"/>',
+face:'<path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M9 9.5v1.5M15 9.5v1.5M12 9.5v4h-1M9 16c1.5 1 4.5 1 6 0"/>',
+lock:'<rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>',
+eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+list:'<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>'
+};
+const ic=(n,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- time (Bahrain) ---------- */
+const TZ='Asia/Bahrain';
+const fT=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hour:'2-digit',minute:'2-digit'});
+const fD=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,weekday:'short',day:'numeric',month:'short'});
+const fH=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hour:'numeric',hour12:false});
+const tm=d=>fT.format(d), dt=d=>fD.format(d);
+const dur=ms=>{const m=Math.max(0,Math.round(ms/60000));return `${Math.floor(m/60)} h ${String(m%60).padStart(2,'0')} min`};
+const hms=ms=>{const s=Math.max(0,Math.floor(ms/1000));return [s/3600,(s%3600)/60,s%60].map(v=>String(Math.floor(v)).padStart(2,'0')).join(':')};
+const agoTxt=m=>{m=Math.round(m);if(m<1)return 'just now';if(m<60)return m+' min ago';return Math.floor(m/60)+' h '+(m%60)+' min ago'};
+const T0=Date.now();
+const STALE_MIN=30;
+const gmaps=(lat,lng)=>`https://www.google.com/maps?q=${lat.toFixed(5)},${lng.toFixed(5)}`;
+
+/* ---------- synthetic portraits (fictional, drawn) ---------- */
+function portrait(o){
+  const c=document.createElement('canvas');c.width=240;c.height=320;const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,240,320);g.addColorStop(0,o.bg[0]);g.addColorStop(1,o.bg[1]);x.fillStyle=g;x.fillRect(0,0,240,320);
+  x.fillStyle=o.shirt;x.beginPath();x.ellipse(120,335,108,95,0,Math.PI,0);x.fill();
+  if(o.ghutra){x.fillStyle='#F3F3F0';x.beginPath();x.ellipse(120,138,70,86,0,0,Math.PI*2);x.fill();x.beginPath();x.moveTo(52,150);x.lineTo(34,300);x.lineTo(206,300);x.lineTo(188,150);x.fill();}
+  if(o.hijab){x.fillStyle=o.hair;x.beginPath();x.ellipse(120,145,70,84,0,0,Math.PI*2);x.fill();x.beginPath();x.moveTo(52,165);x.quadraticCurveTo(120,265,188,165);x.lineTo(204,305);x.lineTo(36,305);x.fill();}
+  x.fillStyle=o.skin;if(!o.hijab&&!o.ghutra)x.fillRect(102,180,36,45);
+  x.beginPath();x.ellipse(120,148,50,62,0,0,Math.PI*2);x.fill();
+  if(!o.hijab&&!o.ghutra){x.fillStyle=o.hair;x.beginPath();x.ellipse(120,108,54,36,0,Math.PI,0);x.fill();}
+  if(o.ghutra){x.strokeStyle='#1B1B1B';x.lineWidth=7;x.beginPath();x.ellipse(120,92,58,14,0,Math.PI,0);x.stroke();}
+  if(o.beard){x.fillStyle=o.hair;x.beginPath();x.ellipse(120,183,44,28,0,0,Math.PI);x.fill();x.fillRect(76,160,10,26);x.fillRect(154,160,10,26);}
+  x.fillStyle='#2A2321';x.beginPath();x.arc(102,146,4.5,0,7);x.arc(138,146,4.5,0,7);x.fill();
+  x.strokeStyle='#2A2321';x.lineWidth=3;x.beginPath();x.moveTo(93,134);x.lineTo(110,132);x.moveTo(130,132);x.lineTo(147,134);x.stroke();
+  x.strokeStyle=o.beard?'#F0E6DF':'#7A4A3A';x.lineWidth=3;x.beginPath();x.arc(120,170,12,.25,Math.PI-.25);x.stroke();
+  x.fillStyle='rgba(0,0,0,.45)';x.fillRect(0,296,240,24);x.fillStyle='#fff';x.font='600 11px Inter,Arial,sans-serif';x.fillText('SYNTHETIC DEMO PHOTO',10,312);
+  return c.toDataURL('image/jpeg',.85);
+}
+
+/* ---------- state ---------- */
+const S={
+  auth:null, login:'start', loginUser:null, loginErr:'',
+  tab:'home', mtab:'overview', rseg:'leave', mapSel:null,
+  onDuty:false, inAt:null, inLoc:null, inPhoto:null, noorExc:null, noorLoc:null,
+  locReq:{from:'Khalid A. (Manager)',reason:'Confirm arrival at campaign site',at:Date.now()-6*60000},
+  history:[
+    {date:'Wed 14 Oct',in:'15:58',out:'00:04',dur:'8 h 06 min',kind:'Standard',place:'Seef Mall Kiosk'},
+    {date:'Tue 13 Oct',in:'16:02',out:'00:01',dur:'7 h 59 min',kind:'Standard',place:'Seef Mall Kiosk'},
+    {date:'Mon 12 Oct',in:'16:20',out:'23:58',dur:'7 h 38 min',kind:'Exception · approved',place:'Camera unavailable'}
+  ],
+  leaves:[
+    {id:1,who:'Noor Hasan',type:'Annual',dates:'Thu 29 Oct',status:'Approved'},
+    {id:2,who:'Noor Hasan',type:'Annual',dates:'Sun 8 – Tue 10 Nov',status:'Pending'},
+    {id:3,who:'Mariam Saleh',type:'Annual',dates:'Mon 2 – Tue 3 Nov',status:'Pending',cover:'1 other agent already on leave on 2 Nov'},
+    {id:4,who:'Hamad Khalil',type:'Sick',dates:'Tue 13 Oct',status:'Pending',medical:true}
+  ],
+  mreqs:[], shares:2, log:[],
+  pk:{agent:[{dev:'iPhone',added:'2 Oct'}],manager:[{dev:'iPhone',added:'28 Sep'}]}
+};
+const USERS={
+  agent:{role:'agent',user:'agent.noor',name:'Noor Hasan',init:'NH',sub:'Agent · Team North'},
+  manager:{role:'manager',user:'manager.khalid',name:'Khalid A.',init:'KA',sub:'Manager · Team North'}
+};
+/* team north as the manager sees it (other than Noor, who is live state) */
+const TEAM=[
+  {id:'faisal',name:'Faisal Ahmed',init:'FA',site:'Seef Mall Kiosk',state:'in',in:'15:56',lat:26.2318,lng:50.5415,acc:9,base:4,photo:null,look:{skin:'#B98564',hair:'#1E1A18',shirt:'#2F4D7A',bg:['#C9D6E2','#EEE6DA'],ghutra:true,beard:true},pk:true},
+  {id:'mariam',name:'Mariam Saleh',init:'MS',site:'Residential campaign · Janabiyah',state:'in',in:'16:04',lat:26.2055,lng:50.4950,acc:14,base:95,photo:null,look:{skin:'#D2A27F',hair:'#3B2F4A',shirt:'#3B2F4A',bg:['#D9D2E6','#F1E9DD'],hijab:true},pk:true},
+  {id:'yusuf',name:'Yusuf Ali',init:'YA',site:'Street campaign · Adliya',state:'exc',in:'16:12',lat:26.2128,lng:50.5915,acc:36,base:22,reason:'Camera not working',note:'Front camera shows a black screen. Restarted the phone twice.',excStatus:'Pending',pk:false},
+  {id:'hamad',name:'Hamad Khalil',init:'HK',site:'Seef Mall Kiosk',state:'none',pk:false},
+  {id:'sara',name:'Sara Mohammed',init:'SM',site:'',state:'off',pk:true},
+  {id:'ali',name:'Ali Redha',init:'AR',site:'',state:'invite',pk:false}
+];
+TEAM.forEach(a=>{if(a.look)a.photo=portrait(a.look)});
+
+const inBH=l=>l&&l.lat>25.5&&l.lat<26.4&&l.lng>50.3&&l.lng<50.9;
+function noorAgent(){
+  const l=S.noorLoc;
+  return {id:'noor',name:'Noor Hasan',init:'NH',site:'Seef Mall Kiosk',me:true,pk:S.pk.agent.length>0,
+    state:S.onDuty?(S.noorExc?'exc':'in'):'none', in:S.inAt?tm(S.inAt):null, photo:S.inPhoto,
+    lat:l?l.lat:null,lng:l?l.lng:null,acc:l?l.acc:null,at:l?l.at:null,reason:S.noorExcWhy,note:S.noorExcNote,excStatus:S.noorExc};
+}
+function agents(){return [noorAgent(),...TEAM]}
+const ageMin=a=>a.at!=null?(Date.now()-a.at)/60000:(a.base!=null?a.base+(Date.now()-T0)/60000:null);
+
+/* ---------- sign-in ---------- */
+function loginView(){
+  if(S.login==='password'){
+    return `<div class="login fade">
+      <button class="iconbtn" data-act="loginBack" aria-label="Back" style="box-shadow:none;background:#E9EAED">${ic('chev',18).replace('M9 6l6 6-6 6','M15 6l-6 6 6 6')}</button>
+      <h1 style="margin-top:28px">Sign in</h1><p class="lead">Use the username your manager gave you.</p>
+      <form id="pwForm" novalidate>
+        <div class="field"><label for="lu">Username</label><input id="lu" autocomplete="username" autocapitalize="none" value="${esc(S.loginUser||'')}" placeholder="agent.noor"></div>
+        <div class="field"><label for="lp">Password</label><input id="lp" type="password" autocomplete="current-password" placeholder="••••••••">${S.loginErr?`<span class="errtxt">${esc(S.loginErr)}</span>`:''}</div>
+        <button class="btn primary" type="submit">Sign in</button>
+      </form>
+      <button class="btn link" data-act="toast" data-msg="A reset link is sent to your work email (demo)">Forgot password?</button>
+      <div class="note">${ic('key',18)}<span>Demo: use <b>agent.noor</b> or <b>manager.khalid</b> with any password.</span></div>
+    </div>`;
+  }
+  if(S.login==='totp'){
+    return `<div class="login fade">
+      <div class="brand"><div class="logo">DS</div><div><b>Two-step sign-in</b><span>manager.khalid</span></div></div>
+      <h1 style="margin-top:34px">Enter your code</h1><p class="lead">Managers need a second step. Open your authenticator app and type the 6-digit code.</p>
+      <form id="otpForm" novalidate>
+        <div class="field"><label for="otp">6-digit code</label><input id="otp" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">${S.loginErr?`<span class="errtxt">${esc(S.loginErr)}</span>`:''}</div>
+        <button class="btn primary" type="submit">Verify</button>
+      </form>
+      <div class="note">${ic('key',18)}<span>Passkeys skip this step: a passkey already proves both your device and your Face ID or fingerprint. Demo: any 6 digits work.</span></div>
+    </div>`;
+  }
+  return `<div class="login fade">
+    <div class="brand"><div class="logo">DS</div><div><b>Direct Sales Portal</b><span>Bahrain field team</span></div></div>
+    <h1>Welcome back</h1>
+    <p class="lead">Sign in to punch in, check your schedule and request leave.</p>
+    <button class="btn primary passkey" data-act="passkeyLogin">${ic('face',24)} Sign in with a passkey</button>
+    <p class="sm muted center" style="margin-top:10px">Uses Face ID, fingerprint or your phone's screen lock.<br>No password to type.</p>
+    <div class="or">or</div>
+    <button class="btn ghost" data-act="pwLogin">Use username and password</button>
+    <div style="flex:1"></div>
+    <div class="note">${ic('alert',18)}<span>Demo: the passkey prompt is simulated, and both demo accounts already have a passkey on "this phone". Pick Noor for the agent view or Khalid for the manager view.</span></div>
+  </div>`;
+}
+
+/* OS-style passkey sheet (simulated) */
+let osTimer=null;
+function osOpen(html){document.getElementById('osCard').innerHTML=html;document.getElementById('os').classList.add('open')}
+function osClose(){clearTimeout(osTimer);document.getElementById('os').classList.remove('open')}
+function passkeyPicker(){
+  const rows=['agent','manager'].filter(r=>S.pk[r].length).map(r=>{const u=USERS[r];return `<button class="acct" data-act="pkPick" data-role="${r}"><div class="avatar ${r==='manager'?'mgr':''}">${u.init}</div><div><b>${u.name}</b><span>${u.user}</span></div><span style="margin-inline-start:auto">${ic('chev',18)}</span></button>`}).join('');
+  osOpen(`<div class="os-head"><div class="k">${ic('key',18)}</div><b>Sign in with your passkey</b><button class="iconbtn" style="width:32px;height:32px;box-shadow:none;background:#E9EAED" data-act="osClose" aria-label="Cancel">${ic('x',16)}</button></div>
+  <div class="os-site">portal.example.bh · saved on this phone</div>
+  ${rows||'<p class="lead" style="margin-bottom:12px">No passkeys for this site on this phone. Sign in with your password, then add one in Profile.</p>'}
+  <button class="btn link" data-act="osClose">Other options</button>`);
+}
+function osVerify(title,after){
+  osOpen(`<div class="center"><div class="faceid" id="fid">${ic('face',46)}</div><b style="font-size:16px">${title}</b><p class="os-site" style="margin:4px 0 6px">Look at your phone or touch the sensor</p></div>`);
+  osTimer=setTimeout(()=>{const f=document.getElementById('fid');if(f){f.classList.add('done');f.innerHTML=ic('check',46)}osTimer=setTimeout(()=>{osClose();after()},550)},1200);
+}
+function signIn(role,how){
+  S.auth=role;S.login='start';S.loginErr='';S.tab='home';S.mtab='overview';
+  render();toast(how==='passkey'?'Signed in with passkey':'Signed in');
+  if(role==='agent'&&how==='password'&&!S.pk.agent.length) setTimeout(offerPasskey,700);
+}
+function offerPasskey(){
+  osOpen(`<div class="os-head"><div class="k">${ic('key',18)}</div><b>Sign in faster next time?</b></div>
+  <p class="lead" style="margin:8px 0 16px">Save a passkey for <b>agent.noor</b> on this phone. Next time, just use Face ID or your fingerprint.</p>
+  <button class="btn primary" data-act="pkCreate">Save a passkey</button><button class="btn link" data-act="osClose">Not now</button>`);
+}
+function createPasskey(){
+  const role=S.auth||'agent';
+  osVerify('Saving passkey',()=>{S.pk[role].push({dev:'This phone',added:dt(new Date()).replace(/^\w+ /,'')});S.log.unshift({at:Date.now(),txt:`${USERS[role].name} added a passkey`});render();toast('Passkey saved')});
+}
+
+/* ---------- agent views ---------- */
+function home(){
+  const on=S.onDuty;
+  const status=on?(S.noorExc==='Pending'?['amber','On duty · exception in review']:S.noorExc==='Approved'?['green','On duty · exception approved']:['green','On duty']):['','Not punched in'];
+  return `
+  ${S.locReq&&on?`<div class="alert fade"><div class="ico">${ic('pin')}</div><div style="min-width:0"><div class="t">Location requested</div><div class="s">${esc(S.locReq.from)} · ${esc(S.locReq.reason)}</div></div><button data-act="share">Share</button></div>`:''}
+  <section class="card hero ${on?'on':''} fade">
+    <div class="row between"><span class="pill ${status[0]}"><i></i>${status[1]}</span><span class="muted sm">${dt(new Date())}</span></div>
+    <div class="shift">
+      <div class="label">Today's shift</div>
+      <div class="big">16:00 – 00:00</div>
+      <div class="place">${ic('pin',16)} Seef Mall Kiosk <a href="${gmaps(26.2335,50.5390)}" target="_blank" rel="noopener">Directions</a></div>
+    </div>
+    ${on?`<div class="timer"><div class="label" style="color:var(--green)">On duty for</div><div class="clock" id="elapsed">${hms(Date.now()-S.inAt)}</div><div class="sm" style="color:var(--green)">Punched in at ${tm(S.inAt)} · Bahrain time</div></div>`:''}
+    <button class="btn-punch ${on?'out':''}" data-act="${on?'punchOut':'punchIn'}">${ic(on?'logout':'login',22)} ${on?'Punch Out':'Punch In'}</button>
+    <p class="hint">${on?'A fresh location is recorded when you punch out.':'Takes a live selfie and one fresh location reading.'}</p>
+  </section>
+  ${S.locReq&&!on?`<div class="note" style="margin-top:12px">${ic('pin',18)}<span>Your manager asked for a location. You can respond once you're punched in. Off-duty agents are never asked to share.</span></div>`:''}
+  <div class="grid">
+    <button class="qa" data-act="share"><div class="ico" style="background:var(--blue-50);color:var(--blue)">${ic('send')}</div><b>Share location</b><span>${on?'Send it now':'When on duty'}</span></button>
+    <button class="qa" data-act="leave"><div class="ico" style="background:var(--red-50);color:var(--red)">${ic('doc')}</div><b>Request leave</b><span>Annual, sick…</span></button>
+    <button class="qa" data-act="tab" data-tab="schedule"><div class="ico" style="background:#F1EEFD;color:#5B3FD6">${ic('cal')}</div><b>My schedule</b><span>Week & month</span></button>
+    <button class="qa" data-act="tab" data-tab="attendance"><div class="ico" style="background:var(--green-50);color:var(--green)">${ic('clock')}</div><b>Attendance</b><span>History & photos</span></button>
+  </div>
+  <div class="two">
+    <div class="card mini"><div class="label">Next off day</div><div class="v">Fri 16 Oct</div></div>
+    <div class="card mini"><div class="label">Next holiday</div><div class="v muted" style="font-weight:600">None set yet</div></div>
+  </div>
+  <h3>Announcements <small>2 new</small></h3>
+  <div class="list">
+    <div class="card item"><div class="ico" style="background:var(--red-50);color:var(--red)">${ic('mega')}</div><div class="main"><div class="t">New campaign: Janabiyah residential</div><div class="s">High priority · Acknowledgement required</div></div><span class="pill red">Ack</span></div>
+    <div class="card item"><div class="ico">${ic('mega')}</div><div class="main"><div class="t">Updated product price sheet</div><div class="s">Pinned · PDF attached</div></div>${ic('chev',18)}</div>
+  </div>`;
+}
+function schedule(){
+  const days=[['Sun',11,'s'],['Mon',12,'s'],['Tue',13,'s'],['Wed',14,'s'],['Thu',15,'t'],['Fri',16,'o'],['Sat',17,'s']];
+  const rows=[
+    [15,'Thu','shift','16:00 – 00:00','Seef Mall Kiosk','Today'],
+    [16,'Fri','off','Off day','',''],
+    [17,'Sat','shift','10:00 – 18:00','Residential campaign · Janabiyah',''],
+    [18,'Sun','shift','16:00 – 00:00','Seef Mall Kiosk',''],
+    [19,'Mon','shift','16:00 – 00:00','Seef Mall Kiosk',''],
+    [29,'Thu','leave','Annual leave','Approved','']
+  ];
+  return `<h2>My schedule</h2>
+  <div class="seg" style="margin-bottom:14px"><button class="on">Week</button><button data-act="toast" data-msg="Month view is in the full portal">Month</button></div>
+  <div class="week">${days.map(d=>`<div class="day ${d[2]==='t'?'today':''} ${d[2]==='o'?'off':''}"><div class="d">${d[0]}</div><div class="n">${d[1]}</div><div class="m"></div></div>`).join('')}</div>
+  <div class="list">${rows.map(r=>`<div class="card sched ${r[2]}"><div class="date"><b>${r[0]}</b><span>${r[1]} · Oct</span></div><div class="bar"></div><div class="main"><div class="t" style="font-weight:700">${r[3]} ${r[5]?`<span class="pill green" style="margin-inline-start:6px">${r[5]}</span>`:''}</div><div class="s muted sm" style="margin-top:3px">${r[4]||'Enjoy your day'}</div></div></div>`).join('')}</div>
+  <button class="btn ghost" style="margin-top:14px" data-act="toast" data-msg="Swap request sent to colleague (demo)">Request an off-day swap</button>`;
+}
+function attendance(){
+  const today=S.onDuty?`<div class="card item fade">${S.inPhoto?`<img class="thumb" src="${S.inPhoto}" alt="Your punch-in selfie">`:`<div class="thumb ph">${ic('alert')}</div>`}<div class="main"><div class="t">Today · in ${tm(S.inAt)}</div><div class="s">${S.noorExc?'Exception · '+S.noorExc.toLowerCase():'Standard punch · selfie + location'}</div></div><span class="pill ${S.noorExc==='Pending'?'amber':'green'}"><i></i>Open</span></div>`:'';
+  return `<h2>Attendance</h2>
+  <div class="list">${today}
+  ${S.history.map(h=>`<div class="card item"><div class="ico">${ic(h.kind.startsWith('Exc')?'alert':'camera')}</div><div class="main"><div class="t">${h.date} · ${h.in} – ${h.out}</div><div class="s">${h.dur} · ${esc(h.place)}</div></div><span class="pill ${h.kind.startsWith('Exc')?'amber':''}">${h.kind.startsWith('Exc')?'Exception':'Standard'}</span></div>`).join('')}
+  </div>
+  <button class="btn ghost" style="margin-top:14px" data-act="toast" data-msg="Correction requests: forgotten punch-out, wrong time, missed punch-in">Request a correction</button>`;
+}
+function leave(){
+  const mine=S.leaves.filter(l=>l.who==='Noor Hasan');
+  return `<h2>Leave</h2>
+  <button class="btn primary" data-act="leave">${ic('doc')} New leave request</button>
+  <div class="note">${ic('shield',18)}<span>Balances are set by your organisation. Medical documents are only visible to specifically authorised staff.</span></div>
+  <h3>My requests</h3>
+  <div class="list">${mine.map(l=>`<div class="card item"><div class="ico">${ic(l.type==='Sick'?'shield':'sun')}</div><div class="main"><div class="t">${esc(l.type)} leave</div><div class="s">${esc(l.dates)}${l.comment?' · '+esc(l.comment):''}</div></div><span class="pill ${l.status==='Approved'?'green':l.status==='Rejected'?'red':'amber'}"><i></i>${l.status}</span></div>`).join('')}</div>`;
+}
+function profile(){
+  return `<div class="card profile-head"><div class="avatar">NH</div><div style="font-weight:800;font-size:19px;margin-top:10px">Noor Hasan</div><div class="muted sm">DS-1042 · Team North · Manager: Khalid A.</div></div>
+  <h3>Passkeys</h3>
+  <div class="list">
+    ${S.pk.agent.map((p,i)=>`<div class="card item"><div class="ico" style="background:var(--green-50);color:var(--green)">${ic('key')}</div><div class="main"><div class="t">${esc(p.dev)}</div><div class="s">Added ${esc(p.added)} · Face ID or fingerprint</div></div><button class="pill" data-act="pkRemove" data-i="${i}">Remove</button></div>`).join('')||`<div class="card item"><div class="ico">${ic('key')}</div><div class="main"><div class="t">No passkey yet</div><div class="s">You sign in with your password.</div></div></div>`}
+    <button class="btn ghost" data-act="pkCreate">${ic('key',18)} Add a passkey on this phone</button>
+  </div>
+  <h3>Settings</h3>
+  <div class="list">
+    <div class="card item"><div class="ico">${ic('pin')}</div><div class="main"><div class="t">How we use your location</div><div class="s">Only at punch in/out or when you share. Never off duty.</div></div></div>
+    <div class="card item"><div class="ico">${ic('camera')}</div><div class="main"><div class="t">Who sees your punch-in photo</div><div class="s">You and your team's authorised managers. Every view is logged.</div></div></div>
+    <div class="card item"><div class="ico">${ic('user')}</div><div class="main"><div class="t">Language</div><div class="s">English · العربية</div></div><div class="seg" style="width:110px"><button class="on">EN</button><button data-act="toast" data-msg="Arabic (RTL) is available in the full portal">ع</button></div></div>
+  </div>
+  <button class="btn ghost" style="margin-top:16px" data-act="signOut">${ic('logout')} Sign out</button>`;
+}
+
+/* ---------- manager views ---------- */
+function counts(){
+  const A=agents();
+  const sched=A.filter(a=>['in','exc','none'].includes(a.state)).length;
+  const inN=A.filter(a=>a.state==='in'||a.state==='exc').length;
+  const none=A.filter(a=>a.state==='none').length;
+  const exc=A.filter(a=>a.state==='exc'&&a.excStatus==='Pending').length;
+  const pl=S.leaves.filter(l=>l.status==='Pending').length;
+  const stale=A.filter(a=>(a.state==='in'||a.state==='exc')&&ageMin(a)!=null&&ageMin(a)>STALE_MIN).length;
+  const lr=(S.locReq?1:0)+S.mreqs.filter(r=>r.status==='Pending').length;
+  return {sched,inN,none,exc,pl,stale,lr,off:A.filter(a=>a.state==='off').length};
+}
+function overview(){
+  const c=counts(), A=agents();
+  const attn=[];
+  A.filter(a=>a.state==='exc'&&a.excStatus==='Pending').forEach(a=>attn.push(`<button class="card item" data-act="openExc" data-id="${a.id}"><div class="thumb ph">${ic('alert')}</div><div class="main"><div class="t">${a.name} · exception to review</div><div class="s">${esc(a.reason||'Problem reported')} · in at ${a.in}</div></div>${ic('chev',18)}</button>`));
+  S.leaves.filter(l=>l.status==='Pending').forEach(l=>attn.push(`<button class="card item" data-act="openLeave" data-id="${l.id}"><div class="ico">${ic(l.type==='Sick'?'shield':'sun')}</div><div class="main"><div class="t">${esc(l.who)} · ${esc(l.type.toLowerCase())} leave</div><div class="s">${esc(l.dates)} · waiting for your decision</div></div>${ic('chev',18)}</button>`));
+  A.filter(a=>(a.state==='in'||a.state==='exc')&&ageMin(a)>STALE_MIN).forEach(a=>attn.push(`<button class="card item" data-act="mapFocus" data-id="${a.id}"><div class="ico" style="background:var(--amber-50);color:var(--amber)">${ic('pin')}</div><div class="main"><div class="t">${a.name} · location is stale</div><div class="s">Last recorded ${agoTxt(ageMin(a))}</div></div>${ic('chev',18)}</button>`));
+  A.filter(a=>a.state==='none').forEach(a=>attn.push(`<div class="card item"><div class="ico">${ic('clock')}</div><div class="main"><div class="t">${a.name} · no punch-in recorded</div><div class="s">Scheduled 16:00 · ${esc(a.site)}</div></div></div>`));
+  return `<div class="row between" style="margin:4px 0 12px"><h2 style="margin:0">Today</h2><span class="muted sm">${dt(new Date())}</span></div>
+  <div class="chips"><span class="chip on">Team North</span><span class="chip lock">${ic('lock',13)} Team South</span></div>
+  <div class="stats">
+    <button class="stat" data-act="mtab" data-tab="punches"><b>${c.inN}<small class="muted" style="font-size:14px;font-weight:600"> / ${c.sched}</small></b><span>Punched in of scheduled</span></button>
+    <div class="stat"><b>${c.none}</b><span>No punch-in recorded</span></div>
+    <div class="stat"><b>${c.off}</b><span>Off today</span></div>
+    <button class="stat ${c.exc?'warn':''}" data-act="mtab" data-tab="punches"><b>${c.exc}</b><span>Exceptions to review</span></button>
+    <button class="stat ${c.pl?'warn':''}" data-act="mtab" data-tab="requests"><b>${c.pl}</b><span>Leave requests pending</span></button>
+    <button class="stat ${c.stale?'warn':''}" data-act="mtab" data-tab="map"><b>${c.stale}</b><span>Stale locations</span></button>
+  </div>
+  <h3>Needs your attention</h3>
+  <div class="list">${attn.join('')||'<div class="card item"><div class="ico">'+ic('check')+'</div><div class="main"><div class="t">Nothing waiting</div></div></div>'}</div>
+  <p class="muted sm" style="margin-top:14px">Counts are factual only. The portal does not rank or score agents.</p>`;
+}
+
+/* map: illustrative northern Bahrain (not Google Maps) */
+const MB={lng0:50.44,lng1:50.68,lat0:26.10,lat1:26.30,W:400,H:340};
+const px=(lat,lng)=>[(lng-MB.lng0)/(MB.lng1-MB.lng0)*MB.W,(MB.lat1-lat)/(MB.lat1-MB.lat0)*MB.H];
+const poly=pts=>pts.map(([lng,lat])=>px(lat,lng).map(v=>v.toFixed(1)).join(',')).join(' ');
+const LAND=[
+ [[50.44,26.05],[50.445,26.12],[50.452,26.16],[50.465,26.19],[50.48,26.21],[50.50,26.225],[50.52,26.233],[50.545,26.238],[50.57,26.243],[50.59,26.245],[50.605,26.232],[50.613,26.212],[50.62,26.19],[50.617,26.165],[50.61,26.14],[50.605,26.11],[50.60,26.05]],
+ [[50.605,26.258],[50.62,26.27],[50.64,26.285],[50.66,26.282],[50.672,26.265],[50.668,26.245],[50.645,26.238],[50.62,26.245]],
+ [[50.625,26.175],[50.645,26.172],[50.66,26.155],[50.655,26.135],[50.632,26.13],[50.622,26.15]]
+];
+const PLACES=[['Manama',26.226,50.578],['Muharraq',26.263,50.640],['Seef',26.240,50.522],['Isa Town',26.172,50.548],['Sitra',26.150,50.642],['Janabiyah',26.196,50.468],["A'ali",26.150,50.525],['Adliya',26.206,50.600]];
+const SITES=[['Seef Mall Kiosk',26.2335,50.5390],['Janabiyah campaign',26.2030,50.4930],['Adliya campaign',26.2140,50.5900]];
+function mapSvg(){
+  const A=agents().filter(a=>(a.state==='in'||a.state==='exc')&&a.lat!=null&&inBH(a));
+  const roads=[[[50.47,26.20],[50.52,26.215],[50.57,26.225],[50.60,26.236]],[[50.545,26.237],[50.55,26.19],[50.55,26.12]],[[50.59,26.243],[50.585,26.19],[50.60,26.12]],[[50.60,26.236],[50.612,26.252]]];
+  return `<svg viewBox="0 0 ${MB.W} ${MB.H}" role="img" aria-label="Illustrative map of northern Bahrain with agents' last recorded locations">
+   <rect width="${MB.W}" height="${MB.H}" fill="#D8E7F1"/>
+   ${LAND.map(p=>`<polygon points="${poly(p)}" fill="#F1F2EC" stroke="#C9D3CC" stroke-width="1"/>`).join('')}
+   ${roads.map(r=>`<polyline points="${poly(r)}" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>`).join('')}
+   ${PLACES.map(([n,la,ln])=>{const[x,y]=px(la,ln);return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="10.5" font-family="Inter,Arial,sans-serif" fill="#7B8288" text-anchor="middle">${n}</text>`}).join('')}
+   ${SITES.map(([n,la,ln])=>{const[x,y]=px(la,ln);return `<rect x="${(x-5).toFixed(1)}" y="${(y-5).toFixed(1)}" width="10" height="10" rx="2" fill="#15171A"><title>${n} (assigned work location)</title></rect>`}).join('')}
+   ${A.map(a=>{const[x,y]=px(a.lat,a.lng);const st=ageMin(a)>STALE_MIN;const sel=S.mapSel===a.id;
+     return `<g class="mk" data-act="mapPick" data-id="${a.id}" tabindex="0" role="button" aria-label="${a.name}">
+       ${sel?`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="21" fill="rgba(215,25,42,.15)"/>`:''}
+       <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="14" fill="${st?'#FFFFFF':(a.state==='exc'?'#B86204':'#12924A')}" stroke="${st?'#B86204':'#FFFFFF'}" stroke-width="2.5" ${st?'stroke-dasharray="4 3"':''}/>
+       <text x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}" font-size="10" font-weight="700" font-family="Inter,Arial,sans-serif" fill="${st?'#B86204':'#FFFFFF'}" text-anchor="middle">${a.init}</text></g>`}).join('')}
+  </svg>`;
+}
+function mapView(){
+  const A=agents().filter(a=>a.state==='in'||a.state==='exc');
+  const sel=A.find(a=>a.id===S.mapSel);
+  let card='';
+  if(sel){
+    const m=ageMin(sel),st=m!=null&&m>STALE_MIN;
+    card=`<div class="card fade" style="margin-top:12px">
+      <div class="row between"><div><b style="font-size:16px">${sel.name}</b><div class="muted sm">Team North · ${esc(sel.site)}</div></div><span class="pill ${sel.state==='exc'?'amber':'green'}"><i></i>${sel.state==='exc'?'On duty · exception':'On duty'}</span></div>
+      <div class="kv" style="margin-top:12px">
+        <div><span>Last recorded</span><b>${sel.lat!=null?`<span class="pill ${st?'amber':'blue'}">${st?'Stale · ':''}${agoTxt(m)}</span>`:'No location yet'}</b></div>
+        ${sel.lat!=null?`<div><span>Approximate address</span><b>${sel.me&&!(S.noorLoc&&S.noorLoc.demo)?'Looked up on the server in the real portal':'Approx. near '+esc(sel.site.split(' · ').pop())}<br><span class="gnote">Google Maps</span></b></div><div><span>Accuracy</span><b>± ${sel.acc} m</b></div>`:''}
+      </div>
+      <div class="btns" style="margin-top:12px">
+        <button class="btn dark sm" data-act="reqLoc" data-id="${sel.id}">${ic('send',16)} Request fresh location</button>
+        ${sel.lat!=null?`<a class="btn ghost sm" href="${gmaps(sel.lat,sel.lng)}" target="_blank" rel="noopener">Open in Google Maps</a>`:''}
+      </div>
+    </div>`;
+  }
+  const outside=A.filter(a=>a.lat!=null&&!inBH(a));
+  return `<h2>Team map</h2>
+  <div class="bigmap">${mapSvg()}<div class="tag">Illustrative map · the real portal uses Google Maps</div></div>
+  <div class="legend"><span><i></i>Recent</span><span><i style="background:var(--amber)"></i>Exception</span><span><i class="st"></i>Stale (over ${STALE_MIN} min)</span><span><i class="sq"></i>Work location</span></div>
+  ${card}
+  <h3>On duty <small>${A.length}</small></h3>
+  <div class="list">${A.map(a=>{const m=ageMin(a),st=m!=null&&m>STALE_MIN;return `<button class="card item" data-act="mapPick" data-id="${a.id}"><div class="avatar" style="width:40px;height:40px;font-size:13px;${a.state==='exc'?'background:var(--amber)':''}">${a.init}</div><div class="main"><div class="t">${a.name}${a.me?' <span class="pill blue">you tested this</span>':''}</div><div class="s">${a.lat==null?'No location recorded':(inBH(a)?'':'Outside map area · ')+'Last recorded '+agoTxt(m)}</div></div><span class="pill ${st?'amber':'green'}">${st?'Stale':'Fresh'}</span></button>`}).join('')||'<div class="card item"><div class="main"><div class="t">Nobody is on duty</div></div></div>'}</div>
+  ${outside.length?`<p class="muted sm" style="margin-top:10px">${outside.map(a=>a.name).join(', ')}: real GPS reading outside Bahrain, so no marker is drawn.</p>`:''}
+  <p class="muted sm" style="margin-top:12px">Locations are recorded only at punch in/out or when an agent shares. Nothing here is live tracking.</p>`;
+}
+function punches(){
+  const A=agents();
+  const on=A.filter(a=>a.state==='in'||a.state==='exc');
+  const rest=A.filter(a=>a.state==='none');
+  return `<h2>Punch-ins today</h2>
+  <p class="lead" style="margin:-6px 0 14px">Tap a photo to open it. Each view is recorded in the access log.</p>
+  <div class="list">
+  ${on.map(a=>a.state==='exc'
+    ?`<button class="card item" data-act="openExc" data-id="${a.id}"><div class="thumb ph">${ic('alert')}</div><div class="main"><div class="t">${a.name} · in ${a.in}</div><div class="s">Exception · ${esc(a.reason||'')} · no photo</div></div><span class="pill ${a.excStatus==='Pending'?'amber':a.excStatus==='Approved'?'green':'red'}">${a.excStatus}</span></button>`
+    :`<button class="card item" data-act="openPhoto" data-id="${a.id}">${a.photo?`<img class="thumb" src="${a.photo}" alt="Punch-in photo of ${a.name}">`:`<div class="thumb ph">${ic('camera')}</div>`}<div class="main"><div class="t">${a.name} · in ${a.in}</div><div class="s">Standard · selfie + location · ${esc(a.site)}</div></div>${ic('eye',18)}</button>`).join('')}
+  ${rest.map(a=>`<div class="card item"><div class="thumb ph" style="color:var(--muted);background:#F1F2F4">${ic('clock')}</div><div class="main"><div class="t">${a.name}</div><div class="s">Scheduled 16:00 · no punch-in recorded</div></div></div>`).join('')}
+  </div>`;
+}
+function requests(){
+  const pend=S.leaves.filter(l=>l.status==='Pending'), done=S.leaves.filter(l=>l.status!=='Pending'&&l.decidedBy);
+  const lreqs=[...(S.locReq?[{to:'Noor Hasan',reason:S.locReq.reason,status:'Pending',at:S.locReq.at}]:[]),...S.mreqs].sort((a,b)=>b.at-a.at);
+  const leaveHtml=`<div class="list">${pend.map(l=>`<button class="card item" data-act="openLeave" data-id="${l.id}"><div class="ico">${ic(l.type==='Sick'?'shield':'sun')}</div><div class="main"><div class="t">${esc(l.who)} · ${esc(l.type)}</div><div class="s">${esc(l.dates)}${l.medical?' · document attached':''}</div></div><span class="pill amber"><i></i>Pending</span></button>`).join('')||'<div class="card item"><div class="main"><div class="t">No pending leave</div></div></div>'}</div>
+   ${done.length?`<h3>Decided today</h3><div class="list">${done.map(l=>`<div class="card item"><div class="ico">${ic('check')}</div><div class="main"><div class="t">${esc(l.who)} · ${esc(l.type)}</div><div class="s">${esc(l.dates)}</div></div><span class="pill ${l.status==='Approved'?'green':'red'}">${l.status}</span></div>`).join('')}</div>`:''}`;
+  const locHtml=`<div class="list">${lreqs.map(r=>`<div class="card item"><div class="ico" style="background:var(--blue-50);color:var(--blue)">${ic('send')}</div><div class="main"><div class="t">${esc(r.to)}</div><div class="s">${esc(r.reason)} · sent ${tm(r.at)}${r.respondedAt?' · answered in '+Math.max(1,Math.round((r.respondedAt-r.at)/60000))+' min':''}</div></div><span class="pill ${r.status==='Pending'?'amber':'green'}"><i></i>${r.status}</span></div>`).join('')||'<div class="card item"><div class="main"><div class="t">No location requests</div></div></div>'}</div>
+   <p class="muted sm" style="margin-top:10px">Only on-duty agents can be asked to share.</p>`;
+  return `<h2>Requests</h2>
+  <div class="seg" style="margin-bottom:14px"><button class="${S.rseg==='leave'?'on':''}" data-act="rseg" data-seg="leave">Leave (${pend.length})</button><button class="${S.rseg==='loc'?'on':''}" data-act="rseg" data-seg="loc">Location (${lreqs.filter(r=>r.status==='Pending').length})</button></div>
+  ${S.rseg==='leave'?leaveHtml:locHtml}`;
+}
+function teamView(){
+  const A=agents();
+  const lbl={in:['green','On duty'],exc:['amber','On duty · exception'],none:['','Not punched in'],off:['','Off today'],invite:['blue','Invitation sent']};
+  return `<h2>Team North</h2>
+  <div class="list">${A.map(a=>`<div class="card item"><div class="avatar" style="width:40px;height:40px;font-size:13px">${a.init}</div><div class="main"><div class="t">${a.name}</div><div class="s">${a.state==='invite'?'Not activated yet':(a.pk?'Signs in with passkey':'Password only')}</div></div><span class="pill ${lbl[a.state][0]}">${lbl[a.state][1]}</span></div>`).join('')}</div>
+  <div class="btns" style="margin-top:12px"><button class="btn ghost sm" data-act="toast" data-msg="Invitation link sent (demo)">Invite agent</button><button class="btn ghost sm" data-act="toast" data-msg="Announcement editor is in the full portal">New announcement</button></div>
+  <h3>Access log <small>${S.log.length}</small></h3>
+  <div class="card" style="padding:4px 14px">${S.log.map(l=>`<div class="logrow"><time>${tm(l.at)}</time><span>${esc(l.txt)}</span></div>`).join('')||'<p class="muted sm" style="padding:12px 0">Photo views and other sensitive access will appear here.</p>'}</div>
+  <button class="btn ghost" style="margin-top:16px" data-act="signOut">${ic('logout')} Sign out</button>`;
+}
+
+const VIEWS={home,schedule,attendance,leave,profile};
+const MVIEWS={overview,map:mapView,punches,requests,team:teamView};
+const TABS=[['home','Home','home'],['schedule','Schedule','cal'],['attendance','Attendance','clock'],['leave','Leave','doc'],['profile','Profile','user']];
+const MTABS=[['overview','Today','home'],['map','Map','map'],['punches','Punches','camera'],['requests','Requests','list'],['team','Team','users']];
+
+const view=document.getElementById('view');
+function render(){
+  const app=document.getElementById('app');
+  app.classList.toggle('out',!S.auth);
+  if(!S.auth){view.innerHTML=loginView();return}
+  const u=USERS[S.auth], mgr=S.auth==='manager';
+  const av=document.getElementById('hdrAv');av.textContent=u.init;av.classList.toggle('mgr',mgr);
+  document.getElementById('hdrName').textContent=u.name;
+  const h=+fH.format(new Date());
+  document.getElementById('hello').textContent=mgr?u.sub:(h<12?'Good morning':h<17?'Good afternoon':'Good evening');
+  view.innerHTML=mgr?MVIEWS[S.mtab]():VIEWS[S.tab]();
+  const c=counts();
+  const badge={requests:c.pl,punches:c.exc};
+  document.getElementById('tabs').innerHTML=(mgr?MTABS:TABS).map(t=>`<button class="${(mgr?S.mtab:S.tab)===t[0]?'active':''}" data-act="${mgr?'mtab':'tab'}" data-tab="${t[0]}">${mgr&&badge[t[0]]?`<span class="badge">${badge[t[0]]}</span>`:''}${ic(t[2],22)}${t[1]}</button>`).join('');
+  document.getElementById('belldot').style.display=(mgr?(c.exc+c.pl>0):(S.locReq&&S.onDuty))?'block':'none';
+}
+document.getElementById('bellsvg').innerHTML=ic('bell');
+
+/* ---------- sheets ---------- */
+const sheet=document.getElementById('sheet');
+let F=null, stream=null, safety=null, raf=null;
+const FLOWS={
+  punchIn:{title:'Punch in',labels:['Info','Location','Selfie','Confirm','Done'],map:{notice:0,locating:1,located:1,locfail:1,camera:2,camfail:2,preview:3,saving:3,done:4,exception:1}},
+  punchOut:{title:'Punch out',labels:['Info','Location','Save','Done'],map:{notice:0,locating:1,located:1,locfail:1,saving:2,done:3}},
+  share:{title:'Share location',labels:['Location','Send','Done'],map:{locating:0,located:0,locfail:0,saving:1,done:2}},
+  leave:{title:'Request leave',labels:null,map:{}},
+  photo:{title:'Punch-in photo',labels:null,map:{}},
+  exc:{title:'Exception review',labels:null,map:{}},
+  ldec:{title:'Leave request',labels:null,map:{}}
+};
+function openFlow(kind,extra){
+  F=Object.assign({kind,step:kind==='punchIn'||kind==='punchOut'?'notice':kind==='share'?'locating':'view'},extra||{});
+  sheet.classList.add('open'); renderFlow();
+  if(F.step==='locating') locate();
+}
+function closeFlow(){stopCam();clearTimeout(safety);sheet.classList.remove('open');F=null;render();}
+function go(step){F.step=step;renderFlow();}
+function addrFor(l){
+  if(!l) return 'No location';
+  if(l.demo) return 'Approx. Seef District, Manama';
+  return inBH(l)?'Looked up on the server in the real portal':'Address unavailable';
+}
+
+function renderFlow(){
+  if(!F) return;
+  const fl=FLOWS[F.kind], idx=fl.map[F.step]??0;
+  const steps=fl.labels?`<div class="steps">${fl.labels.map((_,i)=>`<i class="${i<=idx?'on':''}"></i>`).join('')}</div><div class="steps-l">${fl.labels.map((l,i)=>`<span class="${i===idx?'on':''}">${l}</span>`).join('')}</div>`:'';
+  let body='',foot='';
+  const st=F.step, k=F.kind;
+
+  if(k==='leave'){
+    body=`<div class="field"><label>Leave type</label><div class="seg" id="ltype"><button class="on" data-act="ltype">Annual</button><button data-act="ltype">Sick</button><button data-act="ltype">Emergency</button></div></div>
+    <div class="field"><label for="lfrom">From</label><input type="date" id="lfrom" value="2026-11-15"></div>
+    <div class="field"><label for="lto">To</label><input type="date" id="lto" value="2026-11-15"></div>
+    <div class="field"><label for="ldur">Duration</label><select id="ldur"><option>Full day</option><option>Morning</option><option>Afternoon</option><option>Hours</option></select></div>
+    <div class="field"><label for="lcom">Comment (optional)</label><textarea id="lcom" rows="3" placeholder="Anything your manager should know"></textarea></div>
+    <div class="note">${ic('shield',18)}<span>Notifications never mention your leave type or reason.</span></div>`;
+    foot=`<button class="btn primary" data-act="submitLeave">Submit request</button>`;
+  }
+  else if(k==='photo'){
+    const a=agents().find(x=>x.id===F.id);
+    const loc=a.me?S.noorLoc:a;
+    body=`<div class="row" style="margin-bottom:12px"><div class="avatar" style="width:40px;height:40px;font-size:13px">${a.init}</div><div><b>${a.name}</b><div class="muted sm">Team North · ${esc(a.site)}</div></div></div>
+    <div class="camwrap">${a.photo?`<img src="${a.photo}" alt="Punch-in photo of ${a.name}">`:''}<div class="wm">Viewed by Khalid A. · ${tm(Date.now())}</div></div>
+    <div class="kv" style="margin-top:14px">
+      <div><span>Punched in</span><b>${a.in} · Bahrain time</b></div>
+      <div><span>Type</span><b><span class="pill green"><i></i>Standard punch</span></b></div>
+      ${loc&&loc.lat!=null?`<div><span>Location</span><b>${a.me?addrFor(S.noorLoc):'Approx. near '+esc(a.site.split(' · ').pop())}<br><span class="gnote">Google Maps</span></b></div><div><span>Accuracy</span><b>± ${loc.acc} m</b></div><div><span>Map</span><b><a href="${gmaps(loc.lat,loc.lng)}" target="_blank" rel="noopener">Open in Google Maps</a></b></div>`:''}
+    </div>
+    <div class="note">${ic('eye',18)}<span>This view was recorded in the access log. The photo is supporting evidence only; no face matching is done.</span></div>`;
+    foot='';
+  }
+  else if(k==='exc'){
+    const a=agents().find(x=>x.id===F.id);
+    body=`<div class="row" style="margin-bottom:6px"><div class="avatar" style="width:40px;height:40px;font-size:13px;background:var(--amber)">${a.init}</div><div><b>${a.name}</b><div class="muted sm">In at ${a.in} · ${esc(a.site)}</div></div></div>
+    <div class="kv" style="margin-top:12px">
+      <div><span>Reason</span><b>${esc(a.reason||'Not given')}</b></div>
+      <div><span>Agent's note</span><b>${esc(a.note||'None')}</b></div>
+      <div><span>Selfie</span><b>Not taken</b></div>
+      <div><span>Location</span><b>${a.lat!=null?'± '+a.acc+' m · <a href="'+gmaps(a.lat,a.lng)+'" target="_blank" rel="noopener">Open map</a>':'Not recorded'}</b></div>
+      <div><span>Status</span><b><span class="pill ${a.excStatus==='Pending'?'amber':a.excStatus==='Approved'?'green':'red'}">${a.excStatus}</span></b></div>
+    </div>
+    ${a.excStatus==='Pending'?`<div class="field" style="margin-top:16px"><label for="dcom">Comment (required to reject)</label><textarea id="dcom" rows="3" placeholder="e.g. Please get the camera checked by IT"></textarea>${F.err?`<span class="errtxt">${esc(F.err)}</span>`:''}</div>`:''}
+    <div class="note">${ic('alert',18)}<span>Approved exceptions stay marked as exceptions in reports.</span></div>`;
+    foot=a.excStatus==='Pending'?`<div class="btns"><button class="btn ghost" data-act="excDecide" data-v="Rejected">Reject</button><button class="btn green" data-act="excDecide" data-v="Approved">${ic('check',18)} Approve</button></div>`:'';
+  }
+  else if(k==='ldec'){
+    const l=S.leaves.find(x=>x.id===F.id);
+    body=`<h1>${esc(l.who)}</h1><p class="lead">${esc(l.type)} leave · ${esc(l.dates)}</p>
+    <div class="kv" style="margin-top:16px">
+      <div><span>Duration</span><b>${esc(l.dur||'Full day')}</b></div>
+      <div><span>Comment</span><b>${esc(l.comment||'None')}</b></div>
+      <div><span>Coverage</span><b>${esc(l.cover||'No overlap with other leave')}</b></div>
+      ${l.medical?`<div><span>Medical document</span><b><button class="pill" data-act="medDoc">${ic('lock',13)} Restricted</button></b></div>`:''}
+    </div>
+    ${l.medical&&F.medDenied?`<div class="note">${ic('lock',18)}<span>You don't have the medical documents permission, so the file can't be opened. This attempt was logged. You can still decide the request.</span></div>`:''}
+    <div class="field" style="margin-top:16px"><label for="dcom">Comment to agent (required to reject)</label><textarea id="dcom" rows="3"></textarea>${F.err?`<span class="errtxt">${esc(F.err)}</span>`:''}</div>`;
+    foot=`<div class="btns"><button class="btn ghost" data-act="leaveDecide" data-v="Rejected">Reject</button><button class="btn green" data-act="leaveDecide" data-v="Approved">${ic('check',18)} Approve</button></div>`;
+  }
+  else if(st==='notice'&&k==='punchIn'){
+    body=`<h1>Ready to start?</h1><p class="lead">Here's exactly what punching in collects, and why.</p>
+    <div style="margin-top:10px">
+      <div class="bul"><div class="ico">${ic('camera')}</div><div><b>A live selfie</b><span>Taken now with your front camera. Gallery photos can't be used.</span></div></div>
+      <div class="bul"><div class="ico">${ic('pin')}</div><div><b>One fresh location</b><span>A single reading right now. No background or off-duty tracking.</span></div></div>
+      <div class="bul"><div class="ico">${ic('clock')}</div><div><b>Official server time</b><span>The time is set by the server, in Bahrain time.</span></div></div>
+    </div>
+    <div class="note">${ic('shield',18)}<span>Only you and your team's authorised managers can see your photo, and every view is logged.</span></div>`;
+    foot=`<button class="btn primary" data-act="locate">Allow & continue</button>`;
+  }
+  else if(st==='notice'&&k==='punchOut'){
+    body=`<h1>Finish your shift</h1><p class="lead">We'll take one fresh location reading, then close your session.</p>
+    <div class="kv" style="margin-top:18px"><div><span>Punched in</span><b>${tm(S.inAt)}</b></div><div><span>On duty so far</span><b>${dur(Date.now()-S.inAt)}</b></div><div><span>Work location</span><b>Seef Mall Kiosk</b></div></div>`;
+    foot=`<button class="btn dark" data-act="locate">${ic('pin')} Get my location</button>`;
+  }
+  else if(st==='locating'){
+    body=`<div class="radar"><div class="core">${ic('pin',30)}</div></div><div class="center"><h1>Getting a fresh location…</h1><p class="lead">For best accuracy, step outside or near a window.<br>If your browser asks, tap <b>Allow</b>.</p></div>`;
+    foot=`<button class="btn link" data-act="demoLoc">Skip and use a demo location</button>`;
+  }
+  else if(st==='located'){
+    const l=F.loc, good=l.acc<=50, r=Math.min(150,Math.max(40,l.acc*2.4));
+    body=`<h1>Location captured</h1><p class="lead">${k==='share'?'Check it before you send.':'This reading will be saved with your punch.'}</p>
+    <div class="minimap"><div class="acc" style="width:${r}px;height:${r}px"></div><div class="me"></div><div class="tag">${l.demo?'Demo reading':'Fresh GPS reading'} · just now</div></div>
+    <div class="kv">
+      <div><span>Approximate address</span><b>${addrFor(l)}<br><span class="gnote">Google Maps</span></b></div>
+      <div><span>Coordinates</span><b>${l.lat.toFixed(5)}, ${l.lng.toFixed(5)}</b></div>
+      <div><span>Accuracy</span><b><span class="pill ${good?'green':'amber'}"><i></i>± ${l.acc} m</span></b></div>
+    </div>
+    ${good?'':'<div class="note">'+ic('alert',18)+'<span>Low accuracy. You can continue, but this reading will be flagged for your manager to review.</span></div>'}
+    <p class="muted sm" style="margin-top:10px">Approximate address, not a confirmed building or business.</p>`;
+    const next=k==='punchIn'?['primary','startCam',ic('camera')+' Next: take selfie']:k==='punchOut'?['dark','save',ic('logout')+' Confirm punch out']:['primary','save',ic('send')+' Send location'];
+    foot=`<button class="btn ${next[0]}" data-act="${next[1]}">${next[2]}</button><button class="btn link" data-act="locate">${ic('refresh',16)} Take a new reading</button>`;
+  }
+  else if(st==='locfail'){
+    body=`<div class="err">${ic('alert',38)}</div><div class="center"><h1>Location unavailable</h1><p class="lead">${esc(F.locErr)}<br>A fresh location is required for a standard ${k==='share'?'share':'punch'}.</p></div>
+    <div class="note">${ic('pin',18)}<span>This hosted demo can't read your real location. Use the demo location to keep exploring.</span></div>`;
+    foot=`<button class="btn primary" data-act="demoLoc">Use demo location</button><button class="btn ghost" data-act="locate">Try again</button>${k==='punchIn'?'<button class="btn link" data-act="exception">Report a problem and submit an exception</button>':''}`;
+  }
+  else if(st==='camera'){
+    body=`<div class="camwrap" id="camwrap">${F.demoCam?'<canvas id="democam" width="480" height="640"></canvas>':'<video id="cam" playsinline muted autoplay></video>'}<div class="oval"></div><div class="camtag"><i></i>${F.demoCam?'Demo camera':'Live camera'}</div><div class="flash" id="flash"></div></div>
+    <p class="center muted sm" style="margin-top:12px">Fit your face in the oval and look at the camera.</p>`;
+    foot=`<button class="shutter" data-act="capture" aria-label="Take selfie"></button><p class="center muted sm" style="margin-top:6px">Tap to capture</p>`;
+  }
+  else if(st==='camfail'){
+    body=`<div class="err">${ic('camera',38)}</div><div class="center"><h1>Camera unavailable</h1><p class="lead">${esc(F.camErr)}<br>Standard punch-in needs a live selfie.</p></div>
+    <div class="note">${ic('camera',18)}<span>This hosted demo can't open your camera. Use the demo camera to see the rest of the flow.</span></div>`;
+    foot=`<button class="btn primary" data-act="demoCam">Use demo camera</button><button class="btn ghost" data-act="startCam">Try again</button><button class="btn link" data-act="exception">Report a problem and submit an exception</button>`;
+  }
+  else if(st==='preview'){
+    body=`<h1>Looks good?</h1><p class="lead">Make sure your face is clear and well lit.</p><div class="camwrap" style="margin-top:14px"><img src="${F.photo}" alt="Your selfie"></div>`;
+    foot=`<button class="btn primary" data-act="save">${ic('check')} Use photo and punch in</button><button class="btn ghost" data-act="startCam">${ic('refresh',18)} Retake</button>`;
+  }
+  else if(st==='exception'){
+    body=`<h1>Submit an exception</h1><p class="lead">Your manager will review it. Exceptions are always shown separately from standard punches.</p>
+    <div style="margin-top:18px"><div class="field"><label for="exWhy">What happened?</label><select id="exWhy"><option>Camera not working</option><option>Location unavailable</option><option>Permission denied on my phone</option><option>Other</option></select></div>
+    <div class="field"><label for="exNote">Details</label><textarea id="exNote" rows="4" placeholder="e.g. Phone camera shows a black screen"></textarea></div></div>`;
+    foot=`<button class="btn primary" data-act="saveException">Submit exception</button>`;
+  }
+  else if(st==='saving'){
+    const a=k==='punchIn'?(F.isException?['Sending exception','Notifying your manager']:['Uploading photo','Saving attendance record']):k==='punchOut'?['Sending location','Closing your session']:['Sending location','Notifying your manager'];
+    body=`<div class="radar" style="width:120px;height:120px;margin-top:40px"><div class="core" style="width:56px;height:56px">${ic('clock',26)}</div></div><div class="center"><h1>Saving…</h1><p class="lead">Keep this screen open.</p></div>
+    <div class="prog" id="prog"><div class="now"><span class="st"></span>${a[0]}</div><div><span class="st"></span>${a[1]}</div></div>`;
+  }
+  else if(st==='done'){
+    const r=F.result;
+    body=`<div class="ok ${r.amber?'amber':''}">${ic(r.amber?'alert':'check',48)}</div><div class="center"><h1>${r.title}</h1><p class="lead">${r.sub}</p></div>
+    <div class="kv" style="margin-top:20px">${r.rows.map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('')}</div>
+    ${k==='punchIn'&&!F.isException?`<div class="note">${ic('users',18)}<span>Demo tip: sign out from Profile and sign in as Khalid to see this photo in the manager's Punches tab.</span></div>`:''}`;
+    foot=`<button class="btn dark" data-act="close">Done</button>`;
+  }
+
+  sheet.innerHTML=`<div class="sh-top"><button class="iconbtn" data-act="close" aria-label="Close">${ic('x',18)}</button><div class="ttl">${fl.title}</div><div style="width:38px"></div></div>${steps}<div class="sh-body fade">${body}</div><div class="sh-foot">${foot}</div>`;
+  if(st==='camera'){ if(F.demoCam) runDemoCam(); else attachStream(); }
+  if(st==='saving') runSaving();
+}
+
+/* location */
+function locate(){
+  clearTimeout(safety); go('locating');
+  const token=F.token=Math.random();
+  const ok=p=>{if(!F||F.token!==token||F.step!=='locating')return;clearTimeout(safety);F.loc=p;go('located')};
+  const bad=m=>{if(!F||F.token!==token||F.step!=='locating')return;clearTimeout(safety);F.locErr=m;go('locfail')};
+  safety=setTimeout(()=>bad('Couldn’t get a reading in time.'),12000);
+  if(!navigator.geolocation){setTimeout(()=>bad('This browser can’t provide location.'),700);return}
+  const t0=Date.now();
+  try{
+    navigator.geolocation.getCurrentPosition(
+      pos=>setTimeout(()=>ok({lat:pos.coords.latitude,lng:pos.coords.longitude,acc:Math.round(pos.coords.accuracy),demo:false}),Math.max(0,1100-(Date.now()-t0))),
+      err=>setTimeout(()=>bad(err.code===1?'Location permission was denied.':'Couldn’t get a reading in time.'),600),
+      {enableHighAccuracy:true,maximumAge:0,timeout:9000});
+  }catch(e){bad('Location is blocked in this view.')}
+}
+function demoLoc(){
+  clearTimeout(safety);
+  F.loc={lat:26.2335+(Math.random()-.5)*.002,lng:50.5390+(Math.random()-.5)*.002,acc:8+Math.round(Math.random()*14),demo:true};
+  go('located');
+}
+/* camera */
+function startCam(){stopCam();F.demoCam=false;F.camReady=false;go('camera')}
+async function attachStream(){
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia) throw {name:'NotSupported'};
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:720},height:{ideal:960}},audio:false});
+    if(!F||F.step!=='camera'||F.demoCam){stopCam();return}
+    const v=document.getElementById('cam'); v.srcObject=stream; await v.play().catch(()=>{}); F.camReady=true;
+  }catch(e){
+    if(!F||F.step!=='camera') return;
+    F.camErr=e&&e.name==='NotAllowedError'?'Camera permission was denied.':'No camera is available here.'; go('camfail');
+  }
+}
+function runDemoCam(){
+  const c=document.getElementById('democam'); if(!c) return; const x=c.getContext('2d'); let t=0;
+  const draw=()=>{
+    if(!F||F.step!=='camera'||!document.getElementById('democam'))return;
+    t+=.03;
+    const g=x.createLinearGradient(0,0,480,640);g.addColorStop(0,'#E3C9C4');g.addColorStop(1,'#F2E6DA');x.fillStyle=g;x.fillRect(0,0,480,640);
+    const s=Math.sin(t)*6;
+    x.fillStyle='#7A1F2B';x.beginPath();x.ellipse(240+s,300,140,168,0,0,Math.PI*2);x.fill();
+    x.beginPath();x.moveTo(104+s,330);x.quadraticCurveTo(240+s,530,376+s,330);x.lineTo(410+s,640);x.lineTo(70+s,640);x.fill();
+    x.fillStyle='#C99A7A';x.beginPath();x.ellipse(240+s,296,100,124,0,0,Math.PI*2);x.fill();
+    x.fillStyle='#2A2321';x.beginPath();x.arc(204+s,292,9,0,7);x.arc(276+s,292,9,0,7);x.fill();
+    x.strokeStyle='#2A2321';x.lineWidth=6;x.beginPath();x.moveTo(186+s,268);x.lineTo(220+s,264);x.moveTo(260+s,264);x.lineTo(294+s,268);x.stroke();
+    x.strokeStyle='#8E5B45';x.lineWidth=6;x.beginPath();x.arc(240+s,336,24,.25,Math.PI-.25);x.stroke();
+    x.fillStyle='rgba(0,0,0,.45)';x.fillRect(0,600,480,40);x.fillStyle='#fff';x.font='600 20px Inter,Arial,sans-serif';x.fillText('DEMO CAMERA',20,628);
+    raf=requestAnimationFrame(draw);
+  };
+  draw(); F.camReady=true;
+}
+function stopCam(){
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+  if(raf){cancelAnimationFrame(raf);raf=null}
+}
+function capture(){
+  if(!F.camReady){toast('Camera is still starting…');return}
+  const c=document.createElement('canvas');c.width=480;c.height=640;const x=c.getContext('2d');
+  if(F.demoCam){x.drawImage(document.getElementById('democam'),0,0)}
+  else{
+    const v=document.getElementById('cam'),vw=v.videoWidth,vh=v.videoHeight;
+    if(!vw){toast('Camera is still starting…');return}
+    let sw,sh,sx,sy; if(vw/vh>.75){sh=vh;sw=vh*.75;sx=(vw-sw)/2;sy=0}else{sw=vw;sh=vw/.75;sx=0;sy=(vh-sh)/2}
+    x.translate(480,0);x.scale(-1,1);x.drawImage(v,sx,sy,sw,sh,0,0,480,640);
+  }
+  const fl=document.getElementById('flash'); if(fl) fl.classList.add('go');
+  F.photo=c.toDataURL('image/jpeg',.85);
+  setTimeout(()=>{stopCam();go('preview')},280);
+}
+/* saving */
+function runSaving(){
+  const p=document.getElementById('prog');
+  setTimeout(()=>{if(!p)return;p.children[0].className='done';p.children[0].querySelector('.st').innerHTML=ic('check',16);p.children[1].className='now'},800);
+  setTimeout(()=>{if(F&&F.step==='saving')commit()},1700);
+}
+function commit(){
+  const now=Date.now(), l=F.loc;
+  if(F.kind==='punchIn'&&F.isException){
+    Object.assign(S,{onDuty:true,inAt:now,inLoc:l||null,inPhoto:null,noorExc:'Pending',noorExcWhy:F.exWhy,noorExcNote:F.exNote,noorLoc:l?Object.assign({at:now},l):null});
+    F.result={amber:true,title:'Exception submitted',sub:'You’re on duty. Your manager will review this exception.',rows:[['Time (Bahrain)',tm(now)],['Reason',esc(F.exWhy)],['Status','Pending review']]};
+  }else if(F.kind==='punchIn'){
+    Object.assign(S,{onDuty:true,inAt:now,inLoc:l,inPhoto:F.photo,noorExc:null,noorLoc:Object.assign({at:now},l)});
+    F.result={title:'You’re punched in',sub:'Saved by the server. Have a great shift!',rows:[['Time (Bahrain)',tm(now)],['Location',addrFor(l)],['Accuracy','± '+l.acc+' m'],['Selfie','Saved privately']]};
+  }else if(F.kind==='punchOut'){
+    const d=dur(now-S.inAt);
+    S.history.unshift({date:dt(new Date(S.inAt)),in:tm(S.inAt),out:tm(now),dur:d,kind:S.noorExc?'Exception':'Standard',place:'Seef Mall Kiosk'});
+    F.result={title:'You’re punched out',sub:'Thanks for today. Your session is closed.',rows:[['Punched in',tm(S.inAt)],['Punched out',tm(now)],['Duty recorded',d],['Location',addrFor(l)]]};
+    Object.assign(S,{onDuty:false,inAt:null,inLoc:null,inPhoto:null,noorExc:null,noorLoc:null});
+  }else if(F.kind==='share'){
+    const req=S.locReq;
+    if(req){S.mreqs.push({to:'Noor Hasan',reason:req.reason,status:'Answered',at:req.at,respondedAt:now})}
+    S.locReq=null; S.shares++; S.noorLoc=Object.assign({at:now},l);
+    F.result={title:'Location sent',sub:req?'Your manager’s request has been answered.':'Your manager can now see this reading.',rows:[['Sent at',tm(now)],['Location',addrFor(l)],['Accuracy','± '+l.acc+' m']]};
+  }
+  F.step='done'; renderFlow();
+}
+
+/* ---------- toast ---------- */
+let tt;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400)}
+
+/* ---------- actions ---------- */
+const A={
+  /* sign-in */
+  passkeyLogin:passkeyPicker,
+  pkPick:d=>osVerify('Signing in',()=>signIn(d.role,'passkey')),
+  osClose:osClose,
+  pwLogin:()=>{S.login='password';S.loginErr='';render();setTimeout(()=>{const u=document.getElementById('lu');if(u)u.focus()},50)},
+  loginBack:()=>{S.login='start';S.loginErr='';render()},
+  pkCreate:createPasskey,
+  pkRemove:d=>{
+    if(F&&F.kind==='pkconfirm'){}
+    const i=+d.i, p=S.pk.agent[i];
+    osOpen(`<div class="os-head"><div class="k" style="background:var(--red)">${ic('key',18)}</div><b>Remove this passkey?</b></div><p class="lead" style="margin:8px 0 16px">"${esc(p.dev)}" will no longer sign you in. You can still use your password.</p><button class="btn primary" data-act="pkRemoveYes" data-i="${i}">Remove passkey</button><button class="btn link" data-act="osClose">Keep it</button>`);
+  },
+  pkRemoveYes:d=>{S.pk.agent.splice(+d.i,1);S.log.unshift({at:Date.now(),txt:'Noor Hasan removed a passkey'});osClose();render();toast('Passkey removed')},
+  signOut:()=>{closeFlowQuiet();S.auth=null;S.login='start';render();toast('Signed out')},
+  /* agent */
+  tab:d=>{S.tab=d.tab;render();view.scrollTop=0},
+  punchIn:()=>openFlow('punchIn'),
+  punchOut:()=>openFlow('punchOut'),
+  share:()=>{if(!S.onDuty){toast('Punch in first. Sharing is only for on-duty time.');return}openFlow('share')},
+  leave:()=>openFlow('leave'),
+  close:closeFlow,
+  locate:()=>locate(),
+  demoLoc:demoLoc,
+  startCam:startCam,
+  demoCam:()=>{stopCam();F.demoCam=true;F.camReady=false;go('camera')},
+  capture:capture,
+  save:()=>go('saving'),
+  exception:()=>{stopCam();clearTimeout(safety);go('exception')},
+  saveException:()=>{F.exWhy=document.getElementById('exWhy').value;F.exNote=document.getElementById('exNote').value.trim();F.isException=true;go('saving')},
+  ltype:(d,el)=>{el.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===el))},
+  submitLeave:()=>{
+    const type=(document.querySelector('#ltype .on')||{}).textContent||'Annual';
+    const f=document.getElementById('lfrom').value,t=document.getElementById('lto').value;
+    const fmt=s=>s?new Date(s+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'}):'';
+    S.leaves.unshift({id:Date.now(),who:'Noor Hasan',type,dates:f===t?fmt(f):fmt(f)+' – '+fmt(t),status:'Pending',dur:document.getElementById('ldur').value,comment:document.getElementById('lcom').value.trim()});
+    closeFlow(); S.tab='leave'; render(); toast('Leave request sent to your manager');
+  },
+  bell:()=>{
+    if(S.auth==='manager'){const c=counts();toast(`${c.exc} exception${c.exc===1?'':'s'} and ${c.pl} leave request${c.pl===1?'':'s'} waiting`);return}
+    toast(S.locReq&&S.onDuty?'Khalid A. requested your location':S.locReq?'1 location request. Punch in to respond.':'No new notifications');
+  },
+  toast:d=>toast(d.msg),
+  /* manager */
+  mtab:d=>{S.mtab=d.tab;render();view.scrollTop=0},
+  rseg:d=>{S.rseg=d.seg;render()},
+  mapPick:d=>{S.mapSel=d.id;S.mtab='map';render()},
+  mapFocus:d=>{S.mapSel=d.id;S.mtab='map';render();view.scrollTop=0},
+  openPhoto:d=>{
+    const a=agents().find(x=>x.id===d.id);
+    S.log.unshift({at:Date.now(),txt:`Khalid A. viewed ${a.name}'s punch-in photo`});
+    openFlow('photo',{id:d.id});
+  },
+  openExc:d=>openFlow('exc',{id:d.id}),
+  excDecide:d=>{
+    const com=(document.getElementById('dcom')||{}).value||'';
+    if(d.v==='Rejected'&&!com.trim()){F.err='Add a comment so the agent knows why.';renderFlow();return}
+    if(F.id==='noor') S.noorExc=d.v; else TEAM.find(x=>x.id===F.id).excStatus=d.v;
+    const a=agents().find(x=>x.id===F.id);
+    S.log.unshift({at:Date.now(),txt:`Khalid A. ${d.v.toLowerCase()} ${a.name}'s attendance exception`});
+    closeFlow();toast('Exception '+d.v.toLowerCase());
+  },
+  openLeave:d=>openFlow('ldec',{id:+d.id}),
+  medDoc:()=>{F.medDenied=true;const l=S.leaves.find(x=>x.id===F.id);S.log.unshift({at:Date.now(),txt:`Denied: Khalid A. tried to open ${l.who}'s medical document`});renderFlow()},
+  leaveDecide:d=>{
+    const com=(document.getElementById('dcom')||{}).value||'';
+    if(d.v==='Rejected'&&!com.trim()){F.err='A comment is required to reject.';renderFlow();return}
+    const l=S.leaves.find(x=>x.id===F.id);l.status=d.v;l.decidedBy='Khalid A.';if(com.trim())l.comment=com.trim();
+    S.log.unshift({at:Date.now(),txt:`Khalid A. ${d.v.toLowerCase()} ${l.who}'s leave (${l.dates})`});
+    closeFlow();toast('Leave '+d.v.toLowerCase()+'. The agent is notified.');
+  },
+  reqLoc:d=>{
+    const a=agents().find(x=>x.id===d.id);
+    if(d.id==='noor'){
+      if(!S.onDuty){toast('Noor is off duty and can’t be asked');return}
+      if(S.locReq){toast('A request to Noor is already pending');return}
+      S.locReq={from:'Khalid A. (Manager)',reason:'Fresh location check',at:Date.now()};
+      render();toast('Request sent. Sign in as Noor to answer it.');return;
+    }
+    const r={to:a.name,reason:'Fresh location check',status:'Pending',at:Date.now()};S.mreqs.push(r);
+    S.log.unshift({at:Date.now(),txt:`Khalid A. requested ${a.name}'s location`});
+    render();toast(`Request sent to ${a.name}`);
+    setTimeout(()=>{r.status='Answered';r.respondedAt=Date.now();const t=TEAM.find(x=>x.id===d.id);t.base=-(Date.now()-T0)/60000;t.lat+= (Math.random()-.5)*.001;t.lng+=(Math.random()-.5)*.001;if(S.auth==='manager'){render();toast(`${a.name} shared a fresh location`)}},7000);
+  }
+};
+function closeFlowQuiet(){stopCam();clearTimeout(safety);sheet.classList.remove('open');F=null}
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  if(b.tagName==='A') e.preventDefault();
+  const fn=A[b.dataset.act]; if(fn) fn(b.dataset,b);
+});
+document.addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches('g[data-act]')){e.preventDefault();A[e.target.dataset.act](e.target.dataset)}
+});
+document.getElementById('os').addEventListener('click',e=>{if(e.target.id==='os')osClose()});
+document.addEventListener('submit',e=>{
+  e.preventDefault();
+  if(e.target.id==='pwForm'){
+    const u=document.getElementById('lu').value.trim().toLowerCase(), p=document.getElementById('lp').value;
+    S.loginUser=u;
+    const role=u==='agent.noor'?'agent':u==='manager.khalid'?'manager':null;
+    if(!role||!p){S.loginErr=!p?'Enter your password.':'That username and password don’t match.';render();return}
+    S.loginErr='';
+    if(role==='manager'){S.login='totp';render();setTimeout(()=>{const o=document.getElementById('otp');if(o)o.focus()},50);return}
+    signIn('agent','password');
+  }
+  if(e.target.id==='otpForm'){
+    const v=document.getElementById('otp').value.trim();
+    if(!/^\d{6}$/.test(v)){S.loginErr='Enter the 6 digits from your authenticator app.';render();return}
+    signIn('manager','password');
+  }
+});
+
+setInterval(()=>{const el=document.getElementById('elapsed');if(el&&S.inAt)el.textContent=hms(Date.now()-S.inAt)},1000);
+render();
+</script>
+
+</body>
+</html>
