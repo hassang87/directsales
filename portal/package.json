@@ -1,0 +1,16 @@
+{
+  "name": "direct-sales-portal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mobile-first employee portal for a Bahrain direct-sales field team: punch in/out with selfie and location, schedules, leave, announcements, passkey sign-in.",
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "dev": "APP_MODE=demo node --disable-warning=ExperimentalWarning src/server.js",
+    "migrate": "node --disable-warning=ExperimentalWarning scripts/migrate.js",
+    "create-admin": "node --disable-warning=ExperimentalWarning scripts/create-admin.js",
+    "backup": "node --disable-warning=ExperimentalWarning scripts/backup.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
+  }
+}
