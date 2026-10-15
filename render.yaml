@@ -1,0 +1,20 @@
+# Render Blueprint: runs the portal in portal/ as a web service with HTTPS.
+# In Render: New → Blueprint → choose this repository → Apply.
+services:
+  - type: web
+    name: directsales-portal
+    runtime: node
+    plan: free                     # free instances sleep when idle and lose data on restart: fine for a demo
+    rootDir: portal
+    buildCommand: node --version   # no dependencies to install
+    startCommand: npm start
+    healthCheckPath: /api/session
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: APP_MODE
+        value: demo                # fictional demo data; switch to production only with a persistent disk (see README)
+      - key: TRUST_PROXY
+        value: "true"
+      - key: APP_ENCRYPTION_KEY
+        generateValue: true

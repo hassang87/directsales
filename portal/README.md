@@ -93,6 +93,16 @@ The tests run a real HTTP server with a fresh database. Passkeys are tested with
 
 ---
 
+## Put it online for testing (Render)
+
+The repository has a `render.yaml` at its root, so Render can set everything up from it:
+
+1. Sign in at render.com with GitHub.
+2. Choose **New → Blueprint**, pick this repository, then **Apply**.
+3. When the deploy finishes, open the `https://directsales-portal….onrender.com` address on your phone. Use the demo sign-ins above.
+
+This runs in **demo mode on the free plan**, with fictional data only. Free instances sleep when nobody uses them, so the first visit afterwards takes a little while. Each restart starts again from the demo data, because there is no persistent disk. For real use you need production mode, a paid instance with a persistent disk (set `DATA_DIR` to the disk's mount path) and your own domain. See below.
+
 ## Production setup
 
 ```bash
