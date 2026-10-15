@@ -1,0 +1,26 @@
+# Direct Sales Portal on a Synology NAS (Container Manager → Project).
+# Folder layout on the NAS:
+#   /docker/directsales/compose.yaml   (this file)
+#   /docker/directsales/portal/        (the portal folder from the GitHub repo)
+#   /docker/directsales/data/          (created automatically: database + selfies; back this up)
+services:
+  portal:
+    image: node:22-alpine
+    container_name: directsales-portal
+    working_dir: /app
+    command: ["node", "--disable-warning=ExperimentalWarning", "src/server.js"]
+    volumes:
+      - ./portal:/app:ro
+      - ./data:/data
+    environment:
+      APP_MODE: demo                       # demo = fictional data for testing; change to production for real use
+      PORT: "3000"
+      DATA_DIR: /data
+      TRUST_PROXY: "true"
+      # Your public address, exactly as people will open it (no slash at the end):
+      APP_ORIGIN: https://CHANGE-ME.synology.me
+      # Replace with at least 40 random letters and numbers. Keep it secret and never change it later.
+      APP_ENCRYPTION_KEY: CHANGE-ME-to-a-long-random-secret-of-40-or-more-characters
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
